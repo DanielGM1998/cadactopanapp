@@ -152,7 +152,7 @@ class _RecetaScreenState extends State<RecetaScreen> with SingleTickerProviderSt
             onWillPop: _onWillPop,
             child: Scaffold(
                 backgroundColor: Colors.white.withOpacity(1),
-                appBar: myAppBar(context, nameReceta),
+                appBar: myAppBar(context, nameReceta, widget.idPaciente),
                 drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: widget.idPaciente),
                 resizeToAvoidBottomInset: false,
                 body: isDownloaded && localFilePath != null

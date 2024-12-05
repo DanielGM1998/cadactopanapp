@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:cadactopanapp/presentation/screens/notifications/notificaciones_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
-import 'package:recuperacion/constants/constants.dart';
-import 'package:recuperacion/main.dart';
-import 'package:recuperacion/presentation/screens/glucosa/glucosa_screen.dart';
-import 'package:recuperacion/presentation/screens/presion/presion_screen.dart';
-import 'package:recuperacion/presentation/screens/receta/receta_screen.dart';
+import 'package:cadactopanapp/constants/constants.dart';
+import 'package:cadactopanapp/main.dart';
+import 'package:cadactopanapp/presentation/screens/glucosa/glucosa_screen.dart';
+import 'package:cadactopanapp/presentation/screens/presion/presion_screen.dart';
+import 'package:cadactopanapp/presentation/screens/receta/receta_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../config/providers/push_provider.dart';
 import '../../widgets/my_app_bar.dart';
 import '../../widgets/side_menu.dart';
 import '../laboratorios/laboratorios_screen.dart';
@@ -67,6 +70,116 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
+
+    // Notificacion desde documentacion
+     // Solicita permisos para recibir notificaciones (para iOS)
+    //FirebaseMessaging.instance.requestPermission();
+
+    // Obtén el token de FCM
+    // FirebaseMessaging.instance.getToken().then((token) {
+    //   print('FCM Token: $token'); // Guarda este token en tu backend si es necesario
+    // });
+
+    // Configura el manejo de notificaciones en primer plano
+    /*FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Mensaje recibido en primer plano: ${message.notification?.title}');
+      // Muestra la notificación al usuario
+    });
+
+    // Configura el manejo de notificaciones al tocar
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('Notificación tocada: ${message.notification?.title}');
+    });*/
+
+    // PUSH NOTIFICATIONS
+    final pushProvider = PushProvider();
+    pushProvider.initPush();
+
+    pushProvider.notificacion.listen((titulo) {
+      if (titulo.isNotEmpty && titulo != "Sin título") { 
+        setState(() {
+          if (titulo == 'REFRESH_DATA') {
+            //print('Recargando y refrescando datos');
+            //setState(() {
+            doRefresh();
+            //});
+          } else if (titulo == 'CHAT_MESSAGE') {
+            //print("objectCHAT");
+            // if (_chatCount < 99) _chatCount++;
+            // _paciente.chat = _chatCount;          
+          } else {
+            //print("objectMESSAGE 0");
+
+            // si quiero ir a una pantalla cuando estoy con la app abierta
+            // Navigator.of(context).push(
+            //   _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
+            // );
+
+            // if (_notiCount < 99) _notiCount++;
+            // _paciente.noti = _notiCount;
+            
+            if (titulo != 'onMessage' && titulo != 'REFRESH_DATA') {
+
+              //print("objectMESSAGE 1");
+
+              Navigator.of(context).pushReplacement(
+                _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
+              );
+
+              //_notiCount = 0;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // despues de initState
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+  }
+
+  void getUnreadChat() async {
+    try {
+      // Consulta los documentos donde 'id' coincide con el id del paciente
+      final QuerySnapshot result = await FirebaseFirestore.instance
+          .collection('users')
+          .where('id', isEqualTo: _idPaciente)
+          .get();
+      final List<QueryDocumentSnapshot> documents = result.docs;
+
+      if (documents.isNotEmpty) {
+        setState(() {
+          final userChat = documents.first;
+          //int count = userChat['unread'] < 99 ? userChat['unread'] : 99;
+          //_paciente.chat = count;
+          //_chatCount = count;
+
+          if (userChat['unread'] == 0) {
+            //_cancelAllNotifications();
+          }
+        });
+      } else {
+        // Si no hay documentos, crea uno nuevo con los datos iniciales
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_idPaciente)
+            .set({
+          'chattingWith': null,
+          'id': _idPaciente,
+          'pushToken': '',
+          'unread': 0,
+          'medico': "_paciente.medico.toString()",
+        });
+      }
+    } catch (e) {
+      //print('Error al obtener chats no leídos: $e');
+    }
+  }
+
+  void doRefresh() async {
+    // check de login
   }
 
   Future<void> checkAndNotify(DateTime targetDate) async {
@@ -121,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    //getUnreadChat();
     final Size _size = MediaQuery.of(context).size;
     return FutureBuilder(
       future: getVariables(),
@@ -136,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onWillPop: _onWillPop,
             child: Scaffold(
                 backgroundColor: Colors.white.withOpacity(1),
-                appBar: myAppBar(context, nameApp),
+                appBar: myAppBar(context, nameApp, _idPaciente!),
                 drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: _idPaciente!),
                 resizeToAvoidBottomInset: false,
                 body: Container(
@@ -376,6 +490,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         )) ??
         false;
+  }
+
+  PageRouteBuilder _buildPageRoute(Widget page) {
+    return PageRouteBuilder(
+      barrierColor: Colors.black.withOpacity(0.6),
+      opaque: false,
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: const Duration(milliseconds: 200),
+      transitionsBuilder: (_, animation, __, child) {
+        return BackdropFilter(
+          filter: ImageFilter.blur(
+            sigmaX: 5 * animation.value,
+            sigmaY: 5 * animation.value,
+          ),
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
+    );
   }
 
   /*_datePicker() async {

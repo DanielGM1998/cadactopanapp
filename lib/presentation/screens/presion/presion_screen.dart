@@ -189,7 +189,7 @@ class _PresionScreenState extends State<PresionScreen> {
             onWillPop: _onWillPop,
             child: Scaffold(
               backgroundColor: Colors.white.withOpacity(1),
-              appBar: myAppBar(context, namePresion),
+              appBar: myAppBar(context, namePresion, widget.idPaciente),
               drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: widget.idPaciente),
               resizeToAvoidBottomInset: false,
               body: Stack(

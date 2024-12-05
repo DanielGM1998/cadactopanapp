@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
-const nameVersion = "CAD Actopan v1.1.3";
+const nameVersion = "CAD Actopan v";
 
-const nameApp = "CAD Actopan";
+const nameApp = "CAD";
 
 const myLogo = 'assets/images/logo.png';
 
@@ -15,6 +15,8 @@ const nameReceta = "Receta actual";
 const nameLaboratorios = "Laboratorios";
 
 const nameContacto = "Contacto";
+
+const nameNotificaciones = "Notificaciones";
 
 const sucursalActopan = "Sucursal Actopan";
 const direccionActopan = "Chapultepec No. 172, Col. Chapultepec, Actopan, Hidalgo, C.P. 425000";

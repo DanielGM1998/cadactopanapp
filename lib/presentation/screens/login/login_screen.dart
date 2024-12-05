@@ -5,8 +5,9 @@ import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:recuperacion/presentation/screens/home/home_screen.dart';
+import 'package:cadactopanapp/presentation/screens/home/home_screen.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -37,12 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> requestPermission() async {
     var status = await Permission.notification.request();
     if (status == PermissionStatus.granted) {
-      print('Permiso otorgado');
+      //print('Permiso otorgado');
     } else {
-      print('Permiso denegado');
+      //print('Permiso denegado');
     }
   }
-
+  
   @override
   void initState() {
     super.initState();
@@ -467,8 +468,11 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 Future<String> _check(telefono, pass) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  String _version = '0.0.0';
+  _version = packageInfo.version;
   try {
-    var data = {"telefono": telefono, "password": pass};
+    var data = {"telefono": telefono, "password": pass, "version": _version};
     final response = await http.post(
         Uri( 
           scheme: 'https',
@@ -485,12 +489,12 @@ Future<String> _check(telefono, pass) async {
       String body3 = utf8.decode(response.bodyBytes);
       var jsonData = jsonDecode(body3);
       if(jsonData['success']==true){
-        print(jsonData);
-        print(jsonData['paciente']);
+        //print(jsonData);
+        //print(jsonData['paciente']);
         if(jsonData['paciente']['admin']==true){
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next'];
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
         }else{
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next'];
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
         }
       }else{
         if(jsonData['mensaje']=="No tiene app vigente"){
@@ -583,6 +587,7 @@ Future<void> showResultDialog(
     prefs.setString('tipo_app', splitted[2]);
     prefs.setString('id_paciente', splitted[3]);
     prefs.setString('next_date', splitted[4]);
+    prefs.setString('noti', splitted[5]);
     prefs.setString('telefono', telefono);
     prefs.setString('pass', pass);
     prefs.setBool('is_logged_in', true);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recuperacion/constants/constants.dart';
+import 'package:cadactopanapp/constants/constants.dart';
 class Dialogs {
   static Future<void> showLoadingDialog(BuildContext context, GlobalKey key) async {
     return showDialog<void>(

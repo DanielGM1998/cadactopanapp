@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:easy_splash_screen/easy_splash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:recuperacion/presentation/screens/home/home_screen.dart';
-import 'package:recuperacion/presentation/screens/login/login_screen.dart';
+import 'package:cadactopanapp/presentation/screens/home/home_screen.dart';
+import 'package:cadactopanapp/presentation/screens/login/login_screen.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -36,8 +37,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<String> _check(telefono, pass) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  String _version = '0.0.0';
+  _version = packageInfo.version;
   try {
-    var data = {"telefono": telefono, "password": pass};
+    var data = {"telefono": telefono, "password": pass, "version": _version};
     final response = await http.post(
         Uri( 
           scheme: 'https',
@@ -53,9 +57,9 @@ class _SplashScreenState extends State<SplashScreen> {
         //print(jsonData);
         //print(jsonData['paciente']);
         if(jsonData['paciente']['admin']==true){
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next'];
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
         }else{
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next'];
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
         }
       }else{
         //print(jsonData['mensaje']);
@@ -96,6 +100,7 @@ Future<void> showResultDialog(
       prefs.setString('tipo_app', splitted[2]);
       prefs.setString('id_paciente', splitted[3]);
       prefs.setString('next_date', splitted[4]);
+      prefs.setString('noti', splitted[5]);
       prefs.setString('telefono', telefono);
       prefs.setString('pass', pass);
       prefs.setBool('is_logged_in', true);

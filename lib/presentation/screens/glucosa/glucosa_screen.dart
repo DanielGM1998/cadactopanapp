@@ -189,7 +189,7 @@ class _GlucosaScreenState extends State<GlucosaScreen> {
             onWillPop: _onWillPop,
             child: Scaffold(
               backgroundColor: Colors.white.withOpacity(1),
-              appBar: myAppBar(context, nameGlucosa),
+              appBar: myAppBar(context, nameGlucosa, widget.idPaciente),
               drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: widget.idPaciente),
               resizeToAvoidBottomInset: false,
               body: Stack(

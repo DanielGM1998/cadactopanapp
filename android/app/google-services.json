@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "209885545753",
+    "firebase_url": "https://cad-actopan.firebaseio.com",
+    "project_id": "cad-actopan",
+    "storage_bucket": "cad-actopan.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209885545753:android:56326edbfc5f9aead6f188",
+        "android_client_info": {
+          "package_name": "com.ddsmedia.cadactopan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209885545753-gjdo5g5dribueecd5tblfnvp863ecmmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPzYAm8Zi2qqKS_1xHBfXfTR7o5WAtuVo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209885545753-gjdo5g5dribueecd5tblfnvp863ecmmp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "209885545753-qfcb1bs34d5e3rasle1e2nvqkritkli2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.ddsmedia.ios.cad.actopan"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:209885545753:android:973d305156a1983ed6f188",
+        "android_client_info": {
+          "package_name": "net.ddsmedia.cad.actopan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "209885545753-gjdo5g5dribueecd5tblfnvp863ecmmp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPzYAm8Zi2qqKS_1xHBfXfTR7o5WAtuVo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "209885545753-gjdo5g5dribueecd5tblfnvp863ecmmp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "209885545753-qfcb1bs34d5e3rasle1e2nvqkritkli2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "net.ddsmedia.ios.cad.actopan"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

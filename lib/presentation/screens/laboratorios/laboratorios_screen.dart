@@ -60,7 +60,7 @@ class _LaboratoriosScreenState extends State<LaboratoriosScreen> with SingleTick
                   onWillPop: _onWillPop,
                   child: Scaffold(
                       backgroundColor: Colors.white.withOpacity(1),
-                      appBar: myAppBar(context, nameLaboratorios),
+                      appBar: myAppBar(context, nameLaboratorios, _idPaciente!),
                       drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: _idPaciente!),
                       resizeToAvoidBottomInset: false,
                       body: Container(
@@ -149,7 +149,7 @@ class _LaboratoriosScreenState extends State<LaboratoriosScreen> with SingleTick
                 onWillPop: _onWillPop,
                 child: Scaffold(
                   backgroundColor: Colors.white.withOpacity(1),
-                  appBar: myAppBar(context, nameLaboratorios),
+                  appBar: myAppBar(context, nameLaboratorios, _idPaciente!),
                   drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: _idPaciente!),
                   resizeToAvoidBottomInset: false,
                   body: Container(

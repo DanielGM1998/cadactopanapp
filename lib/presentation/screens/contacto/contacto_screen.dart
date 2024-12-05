@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -55,7 +54,7 @@ class _ContactoScreenState extends State<ContactoScreen> with SingleTickerProvid
             onWillPop: _onWillPop,
             child: Scaffold(
                 backgroundColor: Colors.white.withOpacity(1),
-                appBar: myAppBar(context, nameContacto),
+                appBar: myAppBar(context, nameContacto, widget.idPaciente),
                 drawer: SideMenu(user: _userapp, tipoapp: _tipoapp, idPaciente: widget.idPaciente),
                 resizeToAvoidBottomInset: false,
                 body: Container(

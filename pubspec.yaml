@@ -1,4 +1,4 @@
-name: recuperacion
+name: cadactopanapp
 description: A new Flutter project.
 
 publish_to: 'none'
@@ -9,12 +9,14 @@ environment:
   sdk: ">=2.16.1 <3.24.5"
 
 dependencies:
+  after_layout: ^1.2.0
   animate_do: ^3.0.2
   animated_snack_bar: ^0.3.1
   app_popup_menu: ^1.0.0
   awesome_top_snackbar: ^0.0.3
   calendar_date_picker2: ^0.5.3
   change_app_package_name: ^1.4.0
+  cloud_firestore: ^4.17.5
   cupertino_icons: ^1.0.2
   custom_refresh_indicator: ^2.2.1
   data_table_2: ^2.2.1
@@ -23,6 +25,8 @@ dependencies:
   dropdown_button2: ^1.9.4
   easy_splash_screen: ^1.0.4
   email_validator: ^2.1.17
+  firebase_core: ^2.17.1
+  firebase_messaging: ^14.8.1
   fl_chart: ^0.46.0
   flat_list: ^0.1.14
   flutter:
@@ -40,6 +44,7 @@ dependencies:
   google_nav_bar: ^5.0.6
   http: ^1.0.0
   intl: ^0.18.1
+  package_info_plus: ^8.1.1
   path_provider: ^2.1.3
   permission_handler: ^10.2.0
   provider: ^6.0.2

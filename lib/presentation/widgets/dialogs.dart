@@ -6,6 +6,7 @@ class Dialogs {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        // ignore: deprecated_member_use
         return WillPopScope(
           onWillPop: () async => false,
           child: SimpleDialog(
@@ -37,6 +38,7 @@ class Dialogs {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        // ignore: deprecated_member_use
         return WillPopScope(
           onWillPop: () async => false,
           child: SimpleDialog(

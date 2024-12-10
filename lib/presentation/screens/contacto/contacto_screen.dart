@@ -50,8 +50,15 @@ class _ContactoScreenState extends State<ContactoScreen> with SingleTickerProvid
       future: getVariables(),
       builder: (context, snapshot) {
         if (snapshot.data == false) {
-          return WillPopScope(
-            onWillPop: _onWillPop,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) { return; }
+              bool value = await _onWillPop();
+              if (value) {
+                Navigator.of(context).pop(value);
+              }
+            },
             child: Scaffold(
                 backgroundColor: Colors.white.withOpacity(1),
                 appBar: myAppBar(context, nameContacto, widget.idPaciente),

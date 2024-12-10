@@ -185,8 +185,15 @@ class _PresionScreenState extends State<PresionScreen> {
       future: getVariables(),
       builder: (context, snapshot) {
         if (snapshot.data == false) {
-          return WillPopScope(
-            onWillPop: _onWillPop,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) { return; }
+              bool value = await _onWillPop();
+              if (value) {
+                Navigator.of(context).pop(value);
+              }
+            },
             child: Scaffold(
               backgroundColor: Colors.white.withOpacity(1),
               appBar: myAppBar(context, namePresion, widget.idPaciente),

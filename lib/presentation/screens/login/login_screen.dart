@@ -99,8 +99,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final Size _size = MediaQuery.of(context).size;
-    return WillPopScope(
-      onWillPop: _onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) { return; }
+        bool value = await _onWillPop();
+        if (value) {
+          Navigator.of(context).pop(value);
+        }
+      },
       child: Scaffold(
         body: Container(
           decoration: const BoxDecoration(
@@ -491,6 +498,7 @@ Future<String> _check(telefono, pass) async {
       if(jsonData['success']==true){
         //print(jsonData);
         //print(jsonData['paciente']);
+        //print('Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']);
         if(jsonData['paciente']['admin']==true){
           return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
         }else{

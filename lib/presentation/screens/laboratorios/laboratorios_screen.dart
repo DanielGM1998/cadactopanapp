@@ -56,8 +56,15 @@ class _LaboratoriosScreenState extends State<LaboratoriosScreen> with SingleTick
             future: getLaboratorios(_idPaciente!), 
             builder: (context, snapshot) {
               if (snapshot.data == true) {
-                return WillPopScope(
-                  onWillPop: _onWillPop,
+                return PopScope(
+                  canPop: false,
+                  onPopInvokedWithResult: (didPop, result) async {
+                    if (didPop) { return; }
+                    bool value = await _onWillPop();
+                    if (value) {
+                      Navigator.of(context).pop(value);
+                    }
+                  },
                   child: Scaffold(
                       backgroundColor: Colors.white.withOpacity(1),
                       appBar: myAppBar(context, nameLaboratorios, _idPaciente!),
@@ -145,8 +152,15 @@ class _LaboratoriosScreenState extends State<LaboratoriosScreen> with SingleTick
               } else if (snapshot.hasError) {
                 return const SizedBox(height: 0, width: 0);
               }
-              return WillPopScope(
-                onWillPop: _onWillPop,
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) async {
+                  if (didPop) { return; }
+                  bool value = await _onWillPop();
+                  if (value) {
+                    Navigator.of(context).pop(value);
+                  }
+                },
                 child: Scaffold(
                   backgroundColor: Colors.white.withOpacity(1),
                   appBar: myAppBar(context, nameLaboratorios, _idPaciente!),

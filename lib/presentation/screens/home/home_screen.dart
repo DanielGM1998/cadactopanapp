@@ -44,8 +44,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     _tipoapp = prefs.getString("tipo_app");
     _userapp = prefs.getString("user");
     _idPaciente = prefs.getString("id_paciente");
+
     if (_nextDate != null && _nextDate!.isNotEmpty) {
-      String trimmedDateString = _nextDate!.substring(4);
+      String trimmedDateString = _nextDate!.split(' ')[1];
+      trimmedDateString = trimmedDateString+" 01:00";
+      //print(trimmedDateString);
       date = DateFormat("dd/MM/yyyy HH:mm", 'es').parse(trimmedDateString);
       //print(date);
       //////change 10-11-2024
@@ -246,8 +249,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             {'nombre': 'Receta', 'icono': Icons.medication, 'color': Colors.red, 'ruta': RecetaScreen(idPaciente: _idPaciente.toString())},
             {'nombre': 'Laboratorios', 'icono': Icons.assignment, 'color': Colors.deepPurple, 'ruta': const LaboratoriosScreen()},
           ];
-          return WillPopScope(
-            onWillPop: _onWillPop,
+          return PopScope(
+            canPop: false,
+            onPopInvokedWithResult: (didPop, result) async {
+              if (didPop) { return; }
+              bool value = await _onWillPop();
+              if (value) {
+                Navigator.of(context).pop(value);
+              }
+            },
             child: Scaffold(
                 backgroundColor: Colors.white.withOpacity(1),
                 appBar: myAppBar(context, nameApp, _idPaciente!),

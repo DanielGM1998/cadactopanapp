@@ -18,7 +18,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Maneja mensajes en segundo plano
-  print('Mensaje en segundo plano: ${message.messageId}');
+  //print('Mensaje en segundo plano: ${message.messageId}');
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cadactopanapp/config/services/apis.dart';
 import 'package:easy_splash_screen/easy_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cadactopanapp/presentation/screens/home/home_screen.dart';
@@ -56,10 +57,16 @@ class _SplashScreenState extends State<SplashScreen> {
       if(jsonData['success']==true){
         //print(jsonData);
         //print(jsonData['paciente']);
-        if(jsonData['paciente']['admin']==true){
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
+
+        if(await APIs.userExists(jsonData['paciente']['id_paciente'])){
         }else{
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
+          await APIs.createUser(jsonData['paciente']['id_paciente'], jsonData['paciente']['nombre']+" "+jsonData['paciente']['apellidos']);
+        }
+
+        if(jsonData['paciente']['admin']==true){
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']+","+jsonData['paciente']['apellidos'];
+        }else{
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']+","+jsonData['paciente']['apellidos'];
         }
       }else{
         //print(jsonData['mensaje']);
@@ -103,6 +110,7 @@ Future<void> showResultDialog(
       prefs.setString('noti', splitted[5]);
       prefs.setString('telefono', telefono);
       prefs.setString('pass', pass);
+      prefs.setString('user_last_name', splitted[6]);
       prefs.setBool('is_logged_in', true);
       if (mounted) {
         setState(() {

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cadactopanapp/constants/constants.dart';
+import 'package:cadactopanapp/presentation/screens/chat/chat_users_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +15,18 @@ import '../../main.dart';
 import '../../presentation/screens/notifications/notificaciones_screen.dart';
 
 class PushProvider {
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  static final PushProvider _instance = PushProvider._internal();
+  factory PushProvider() => _instance;
+  PushProvider._internal();
 
-  final int typeNotification = 1;
-  final int typeRefreshData = 2;
-  final int typeChatMessage = 3;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
   final _msgStreamController = StreamController<String>.broadcast();
   Stream<String> get notificacion => _msgStreamController.stream;
 
   final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  bool _listenersInitialized = false;
 
   String _version = '0.0.0';
   Future<void> _checkVersion() async {
@@ -32,7 +34,11 @@ class PushProvider {
     _version = packageInfo.version;
   }
 
-  void initPush() async {
+  Future<void> initPush() async {
+
+    if (_listenersInitialized) return; // Verifica si ya fue inicializado
+    _listenersInitialized = true; // Marca como inicializado
+
     // Solicitar permisos de notificaciones
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
@@ -45,16 +51,16 @@ class PushProvider {
     );
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      //print('Permisos de notificaciones otorgados.');
+      // log('Permisos de notificaciones otorgados.');
     } else {
-      //print('Permisos de notificaciones denegados.');
+      // log('Permisos de notificaciones denegados.');
       return;
     }
 
     // Obtener token de FCM
     _firebaseMessaging.getToken().then((token) async {
-      //print('==== FCM Token ====');
-      //print(token);
+      // log('==== FCM Token ====');
+      // log(token);
 
       SharedPreferences prefs = await _prefs;
       String _tokenSaved = prefs.getString('token') ?? '';
@@ -62,11 +68,11 @@ class PushProvider {
 
       if (paciente != 0 && token != null) {
         FirebaseFirestore.instance
-            .collection('users')
+            .collection('usuarios')
             .doc(paciente.toString())
             .update({
-          'id': paciente.toString(),
-          'pushToken': token,
+              'id': paciente.toString(),
+              'push_token': token,
         });
 
         if (_tokenSaved != token) {
@@ -95,102 +101,168 @@ class PushProvider {
       }
     });
 
-    // Listeners para notificaciones
+    // Listener para notificaciones en primer plano
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async{
-      // print('Mensaje recibido en primer plano: ${message.notification?.title}');
-      // print('Mensaje recibido en primer plano: ${message.notification?.body}');
-      // print('=============== onMessage ====================');
-      // print('Message data: ${message.data}');
+      // log('=============== onMessage ====================');
+      // log('Mensaje recibido en primer plano: ${message.notification?.title}');
+      // log('Mensaje recibido en primer plano: ${message.notification?.body}');
+      //log("Datos onMessage: ${message.data}");
+      
       int tipo = _getNotificationType(message);
+      //log("Tipo onMessage: ${tipo.toString()}");
 
-      if (tipo == typeNotification) {
-        _msgStreamController.sink.add('onMessage');
+      switch (tipo) {
+        case 1: // typeNotification
+          _msgStreamController.sink.add('onMessage');
 
-        await flutterLocalNotificationsPlugin.show(
-          0,
-          message.notification?.title,
-          message.notification?.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              'your_channel_id', 'your_channel_name',
-              importance: Importance.max,
-              priority: Priority.high,
-              icon: '@mipmap/launcher_icon', 
-              largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'), 
-              color: myColor, 
-              styleInformation: BigTextStyleInformation(
-                message.notification?.body ?? "",
-                contentTitle: message.notification?.title,
-                htmlFormatContent: true,
-                htmlFormatContentTitle: true,
+          await flutterLocalNotificationsPlugin.show(
+            0,
+            message.notification?.title,
+            message.notification?.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                'your_channel_id', 'your_channel_name',
+                importance: Importance.max,
+                priority: Priority.high,
+                icon: '@mipmap/launcher_icon', 
+                largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'), 
+                color: myColor, 
+                styleInformation: BigTextStyleInformation(
+                  message.notification?.body ?? "",
+                  contentTitle: message.notification?.title,
+                  htmlFormatContent: true,
+                  htmlFormatContentTitle: true,
+                ),
+                playSound: true, 
+                ticker: 'ticker',
+                enableVibration: true,
               ),
-              playSound: true, 
-              ticker: 'ticker',
-              enableVibration: true,
             ),
-          ),
-        );
+            payload: jsonEncode({
+              "tipo": "typeNotification",
+            }), 
+          );
+          break;
+        case 2: // typeRefreshData
+          _msgStreamController.sink.add('REFRESH_DATA');  
+          break;
+        case 3: // typeChatMessage
+          _msgStreamController.sink.add('CHAT_MESSAGE');
 
-      } else if (tipo == typeRefreshData) {
-        _msgStreamController.sink.add('REFRESH_DATA');
-      } else if (tipo == typeChatMessage) {
-        _msgStreamController.sink.add('CHAT_MESSAGE');
+          await flutterLocalNotificationsPlugin.show(
+            0,
+            message.notification?.title,
+            message.notification?.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                'your_channel_id', 'your_channel_name',
+                importance: Importance.defaultImportance,
+                priority: Priority.high,
+                icon: '@mipmap/launcher_icon', 
+                largeIcon: const DrawableResourceAndroidBitmap('@mipmap/launcher_icon'), 
+                color: myColor, 
+                styleInformation: BigTextStyleInformation(
+                  message.notification?.body ?? "",
+                  contentTitle: message.notification?.title,
+                  htmlFormatContent: true,
+                  htmlFormatContentTitle: true,
+                ),
+                playSound: true, 
+                ticker: 'ticker',
+                enableVibration: true,
+              ),
+            ),
+            payload: jsonEncode({
+              "tipo": "CHAT_MESSAGE",
+            }), 
+          );
+          break;
+        default:
+        // log("Tipo de notificación desconocido: $tipo");
       }
     });
 
+    // Listener para notificaciones tocadas (segundo plano)
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async{
-      // print('Notificación tocada: ${message.notification?.title}');
-      // print('Notificación tocada: ${message.notification?.body}');
-      // print('=============== onMessageOpenedApp ====================');
-      // print('Message data: ${message.data}');
+      // log('=============== onMessageOpenedApp ====================');
+      // log('Notificación tocada: ${message.notification?.title}');
+      // log('Notificación tocada: ${message.notification?.body}');
+      // log("Datos onMessageOpenedApp: ${message.data}");
+      
       int tipo = _getNotificationType(message);
+      //log("Tipo onMessageOpenedApp: ${tipo.toString()}");
 
-      String titulo = message.notification?.title ?? 'Sin título';
-      if (tipo == typeNotification) {
-        _msgStreamController.sink.add(titulo);
-      } else if (tipo == typeRefreshData) {
-        _msgStreamController.sink.add('REFRESH_DATA');
+      SharedPreferences prefs = await _prefs;
+      int paciente = int.parse(prefs.getString('id_paciente') ?? '0');
+
+      switch (tipo) {
+        case 1: // typeNotification
+          // String titulo = message.notification?.title ?? 'Sin título';
+          // _msgStreamController.sink.add(titulo);
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => NotificacionesScreen(idPaciente: paciente.toString()),
+            ),
+            (Route<dynamic> route) => false,
+          );
+          break;
+        case 2: // typeRefreshData
+          //_msgStreamController.sink.add('REFRESH_DATA');
+          break;
+        case 3: // typeChatMessage
+          //_msgStreamController.sink.add('CHAT_MESSAGE');
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => ChatUsersScreen(idPaciente: paciente.toString()),
+            ),
+            (Route<dynamic> route) => false,
+          );
+          break;
+        default:
       }
-
-      if (titulo.isNotEmpty && titulo != "Sin título") { 
-
-        SharedPreferences prefs = await _prefs;
-        int paciente = int.parse(prefs.getString('id_paciente') ?? '0');
-
-        navigatorKey.currentState?.pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => NotificacionesScreen(idPaciente: paciente.toString()),
-          ),
-        );
-
-      }
-
     });
 
+    // Manejo de notificación que activa la app desde estado "terminado"
     RemoteMessage? initialMessage = await _firebaseMessaging.getInitialMessage();
+    //   log('=============== getInitialMessage ====================');
+    //   log('Message data: ${initialMessage.data}');
+    
     if (initialMessage != null) {
-      // print('=============== getInitialMessage ====================');
-      // print('Message data: ${initialMessage.data}');
       int tipo = _getNotificationType(initialMessage);
+      SharedPreferences prefs = await _prefs;
+      int paciente = int.parse(prefs.getString('id_paciente') ?? '0');
 
-      String titulo = initialMessage.notification?.title ?? 'Sin título';
-      if (tipo == typeNotification) {
-        _msgStreamController.sink.add(titulo);
-      } else if (tipo == typeRefreshData) {
-        _msgStreamController.sink.add('REFRESH_DATA');
+      switch (tipo) {
+        case 1: // typeNotification
+          //     String titulo = initialMessage.notification?.title ?? 'Sin título';
+          //     _msgStreamController.sink.add(titulo);
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => NotificacionesScreen(idPaciente: paciente.toString()),
+            ),
+            (Route<dynamic> route) => false,
+          );
+          break;
+        case 2: // typeNotification
+          //     _msgStreamController.sink.add('REFRESH_DATA');
+          break;
+        case 3: // typeChatMessage
+          //     _msgStreamController.sink.add('CHAT_MESSAGE');
+          navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => ChatUsersScreen(idPaciente: paciente.toString()),
+            ),
+            (Route<dynamic> route) => false,
+          );
+          break;
+        default:
       }
     }
   }
 
   // Método auxiliar para determinar el tipo de notificación
   int _getNotificationType(RemoteMessage message) {
-    int tipo = 1;
-    if (Platform.isAndroid) {
-      tipo = int.parse(message.data['type'] ?? '1');
-    } else {
-      tipo = int.parse(message.data['type'] ?? '1');
-    }
-    return tipo;
+    return int.tryParse(message.data['tipo'] ?? '0') ?? 0;
   }
 
   void dispose() {

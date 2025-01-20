@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
+import 'package:cadactopanapp/config/services/apis.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:future_progress_dialog/future_progress_dialog.dart';
@@ -499,10 +500,16 @@ Future<String> _check(telefono, pass) async {
         //print(jsonData);
         //print(jsonData['paciente']);
         //print('Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']);
-        if(jsonData['paciente']['admin']==true){
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
+
+        if(await APIs.userExists(jsonData['paciente']['id_paciente'])){
         }else{
-          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti'];
+          await APIs.createUser(jsonData['paciente']['id_paciente'], jsonData['paciente']['nombre']+" "+jsonData['paciente']['apellidos']);
+        }
+
+        if(jsonData['paciente']['admin']==true){
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",0,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']+","+jsonData['paciente']['apellidos'];
+        }else{
+          return 'Acceso correcto,'+jsonData['paciente']['nombre']+",1,"+jsonData['paciente']['id_paciente']+","+jsonData['paciente']['next']+","+jsonData['paciente']['noti']+","+jsonData['paciente']['apellidos'];
         }
       }else{
         if(jsonData['mensaje']=="No tiene app vigente"){
@@ -598,6 +605,7 @@ Future<void> showResultDialog(
     prefs.setString('noti', splitted[5]);
     prefs.setString('telefono', telefono);
     prefs.setString('pass', pass);
+    prefs.setString('user_last_name', splitted[6]);
     prefs.setBool('is_logged_in', true);
     Navigator.of(context).push(
       PageRouteBuilder(

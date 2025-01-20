@@ -1,5 +1,8 @@
 import 'dart:ui';
 
+import 'package:cadactopanapp/config/services/apis.dart';
+import 'package:cadactopanapp/main.dart';
+import 'package:cadactopanapp/presentation/screens/chat/chat_users_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constants/constants.dart';
@@ -24,6 +27,8 @@ AppBar myAppBar(BuildContext context, String name, String idPaciente) {
           ),
           TextButton(
             onPressed: () async {
+              await APIs.deleteTokenSesion(idPaciente);
+              await flutterLocalNotificationsPlugin.cancelAll();
               SharedPreferences prefs =
                   await SharedPreferences.getInstance();
               await prefs.remove("user");
@@ -35,8 +40,9 @@ AppBar myAppBar(BuildContext context, String name, String idPaciente) {
               await prefs.remove("next_date");
               await prefs.remove("token");
               await prefs.remove("noti");
+              await prefs.remove("user_last_name");
               prefs.setBool('is_logged_in', false);
-              prefs.remove('last_notification_date');              
+              await prefs.remove('last_notification_date');
               Navigator.pushReplacementNamed(context, 'login');
             },
             child: const Text('Si'),
@@ -67,8 +73,9 @@ AppBar myAppBar(BuildContext context, String name, String idPaciente) {
         IconButton(
           icon: const Icon(Icons.home_outlined), 
           onPressed: () {
-            Navigator.of(context).pushReplacement(
+            Navigator.of(context).pushAndRemoveUntil(
               _buildPageRoute(const HomeScreen()),
+              (Route<dynamic> route) => false, // Remueve todas las páginas previas
             );
           },
         ),
@@ -142,7 +149,7 @@ AppBar myAppBar(BuildContext context, String name, String idPaciente) {
                 ],
               ),
             ),
-            /*PopupMenuItem<int>(
+            PopupMenuItem<int>(
               value: 2,
               child: Row(
                 children: [
@@ -151,14 +158,16 @@ AppBar myAppBar(BuildContext context, String name, String idPaciente) {
                   const Text("Chat", style: TextStyle(color: myColor)),
                 ],
               ),
-            ),*/
+            ),
           ];
         },
         onSelected: (value) {
           if (value == 1) {
             _onWillPop1();
           }else if (value == 2) {
-
+            Navigator.of(context).pushReplacement(
+              _buildPageRoute(ChatUsersScreen(idPaciente: idPaciente)),
+            );
           }
         },
       ),

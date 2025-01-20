@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:cadactopanapp/presentation/screens/notifications/notificaciones_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -63,122 +61,50 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     const Color.fromRGBO(55, 171, 204, 0.8),
   ];
 
-  // List<DateTime?> _dialogCalendarPickerValue = [
-  //   DateTime.now(),
-  //   DateTime.now().add(const Duration(days: 15)),
-  // ];
-
   late List<Map<String, dynamic>> modulos;
 
   @override
   void initState() {
     super.initState();
 
-    // Notificacion desde documentacion
-     // Solicita permisos para recibir notificaciones (para iOS)
-    //FirebaseMessaging.instance.requestPermission();
-
-    // Obtén el token de FCM
-    // FirebaseMessaging.instance.getToken().then((token) {
-    //   print('FCM Token: $token'); // Guarda este token en tu backend si es necesario
-    // });
-
-    // Configura el manejo de notificaciones en primer plano
-    /*FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('Mensaje recibido en primer plano: ${message.notification?.title}');
-      // Muestra la notificación al usuario
-    });
-
-    // Configura el manejo de notificaciones al tocar
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('Notificación tocada: ${message.notification?.title}');
-    });*/
-
     // PUSH NOTIFICATIONS
     final pushProvider = PushProvider();
     pushProvider.initPush();
 
-    pushProvider.notificacion.listen((titulo) {
-      if (titulo.isNotEmpty && titulo != "Sin título") { 
-        setState(() {
-          if (titulo == 'REFRESH_DATA') {
-            //print('Recargando y refrescando datos');
-            //setState(() {
-            doRefresh();
-            //});
-          } else if (titulo == 'CHAT_MESSAGE') {
-            //print("objectCHAT");
-            // if (_chatCount < 99) _chatCount++;
-            // _paciente.chat = _chatCount;          
-          } else {
-            //print("objectMESSAGE 0");
-
-            // si quiero ir a una pantalla cuando estoy con la app abierta
-            // Navigator.of(context).push(
-            //   _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
-            // );
-
-            // if (_notiCount < 99) _notiCount++;
-            // _paciente.noti = _notiCount;
-            
-            if (titulo != 'onMessage' && titulo != 'REFRESH_DATA') {
-
-              //print("objectMESSAGE 1");
-
-              Navigator.of(context).pushReplacement(
-                _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
-              );
-
-              //_notiCount = 0;
-            }
-          }
-        });
-      }
-    });
+    //pushProvider.notificacion.listen((titulo) {
+      //log(titulo);
+      // if (titulo.isNotEmpty && titulo != "Sin título") { 
+      //   setState(() {
+      //     if (titulo == 'REFRESH_DATA') {
+      //       //setState(() {
+      //       doRefresh();
+      //       //});
+      //     } else if (titulo == 'CHAT_MESSAGE') {
+      //       // if (_chatCount < 99) _chatCount++;
+      //       // _paciente.chat = _chatCount;          
+      //     } else {
+      //       // si quiero ir a una pantalla cuando estoy con la app abierta
+      //       // Navigator.of(context).push(
+      //       //   _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
+      //       // );
+      //       // if (_notiCount < 99) _notiCount++;
+      //       // _paciente.noti = _notiCount;
+      //       if (titulo != 'onMessage' && titulo != 'REFRESH_DATA') {
+      //         Navigator.of(context).pushReplacement(
+      //           _buildPageRoute(NotificacionesScreen(idPaciente: _idPaciente!)),
+      //         );
+      //         //_notiCount = 0;
+      //       }
+      //     }
+      //   });
+      // }
+    //});
   }
 
   // despues de initState
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
-  }
-
-  void getUnreadChat() async {
-    try {
-      // Consulta los documentos donde 'id' coincide con el id del paciente
-      final QuerySnapshot result = await FirebaseFirestore.instance
-          .collection('users')
-          .where('id', isEqualTo: _idPaciente)
-          .get();
-      final List<QueryDocumentSnapshot> documents = result.docs;
-
-      if (documents.isNotEmpty) {
-        setState(() {
-          final userChat = documents.first;
-          //int count = userChat['unread'] < 99 ? userChat['unread'] : 99;
-          //_paciente.chat = count;
-          //_chatCount = count;
-
-          if (userChat['unread'] == 0) {
-            //_cancelAllNotifications();
-          }
-        });
-      } else {
-        // Si no hay documentos, crea uno nuevo con los datos iniciales
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(_idPaciente)
-            .set({
-          'chattingWith': null,
-          'id': _idPaciente,
-          'pushToken': '',
-          'unread': 0,
-          'medico': "_paciente.medico.toString()",
-        });
-      }
-    } catch (e) {
-      //print('Error al obtener chats no leídos: $e');
-    }
   }
 
   void doRefresh() async {
@@ -237,7 +163,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    //getUnreadChat();
     final Size _size = MediaQuery.of(context).size;
     return FutureBuilder(
       future: getVariables(),
@@ -502,236 +427,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         false;
   }
 
-  PageRouteBuilder _buildPageRoute(Widget page) {
-    return PageRouteBuilder(
-      barrierColor: Colors.black.withOpacity(0.6),
-      opaque: false,
-      pageBuilder: (_, __, ___) => page,
-      transitionDuration: const Duration(milliseconds: 200),
-      transitionsBuilder: (_, animation, __, child) {
-        return BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: 5 * animation.value,
-            sigmaY: 5 * animation.value,
-          ),
-          child: FadeTransition(
-            opacity: animation,
-            child: child,
-          ),
-        );
-      },
-    );
-  }
-
-  /*_datePicker() async {
-    const dayTextStyle =
-        TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
-    const weekendTextStyle =
-        TextStyle(color: Colors.black, fontWeight: FontWeight.w700);
-    final anniversaryTextStyle = TextStyle(
-      color: Colors.red[400],
-      fontWeight: FontWeight.w700,
-      decoration: TextDecoration.underline,
-    );
-    final config = CalendarDatePicker2WithActionButtonsConfig(
-      dayTextStyle: dayTextStyle,
-      calendarType: CalendarDatePicker2Type.range,
-      selectedDayHighlightColor: const Color.fromRGBO(55, 171, 204, 1),
-      closeDialogOnCancelTapped: true,
-      firstDayOfWeek: 1,
-      weekdayLabelTextStyle: const TextStyle(
-        color: Color.fromRGBO(55, 171, 204, 1),
-        fontWeight: FontWeight.bold,
-      ),
-      controlsTextStyle: const TextStyle(
-        color: Colors.black,
-        fontSize: 15,
-        fontWeight: FontWeight.bold,
-      ),
-      centerAlignModePicker: true,
-      customModePickerIcon: const SizedBox(),
-      selectedDayTextStyle: dayTextStyle.copyWith(color: Colors.white),
-      dayTextStylePredicate: ({required date}) {
-        TextStyle? textStyle;
-        if (date.weekday == DateTime.saturday ||
-            date.weekday == DateTime.sunday) {
-          textStyle = weekendTextStyle;
-        }
-        if (DateUtils.isSameDay(date, DateTime(2021, 1, 25))) {
-          textStyle = anniversaryTextStyle;
-        }
-        return textStyle;
-      },
-      dayBuilder: ({
-        required date,
-        textStyle,
-        decoration,
-        isSelected,
-        isDisabled,
-        isToday,
-      }) {
-        Widget? dayWidget;
-        if (date.day % 3 == 0 && date.day % 9 != 0) {
-          dayWidget = Container(
-            decoration: decoration,
-            child: Center(
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  Text(
-                    MaterialLocalizations.of(context).formatDecimal(date.day),
-                    style: textStyle,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 27.5),
-                    child: Container(
-                      height: 4,
-                      width: 4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: isSelected == true
-                            ? Colors.white
-                            : Colors.grey[500],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-        return dayWidget;
-      },
-      yearBuilder: ({
-        required year,
-        decoration,
-        isCurrentYear,
-        isDisabled,
-        isSelected,
-        textStyle,
-      }) {
-        return Center(
-          child: Container(
-            decoration: decoration,
-            height: 36,
-            width: 72,
-            child: Center(
-              child: Semantics(
-                selected: isSelected,
-                button: true,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      year.toString(),
-                      style: textStyle,
-                    ),
-                    if (isCurrentYear == true)
-                      Container(
-                        padding: const EdgeInsets.all(5),
-                        margin: const EdgeInsets.only(left: 5),
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-    final values = await showCalendarDatePicker2Dialog(
-      context: context,
-      config: config,
-      dialogSize: const Size(325, 400),
-      borderRadius: BorderRadius.circular(15),
-      value: _dialogCalendarPickerValue,
-      dialogBackgroundColor: Colors.white,
-    );
-    String inicio = '', fin = '';
-    if (values != null) {
-      inicio = _getValueText(config.calendarType, values);
-      fin = _getValueText2(config.calendarType, values);
-      setState(() {
-        _dialogCalendarPickerValue = values;
-        _getExcel(inicio, fin);
-      });
-    }
-  }
-
-  String _getValueText(
-    CalendarDatePicker2Type datePickerType,
-    List<DateTime?> values,
-  ) {
-    values =
-        values.map((e) => e != null ? DateUtils.dateOnly(e) : null).toList();
-    var valueText = (values.isNotEmpty ? values[0] : null)
-        .toString()
-        .replaceAll('00:00:00.000', '');
-
-    if (datePickerType == CalendarDatePicker2Type.multi) {
-      valueText = values.isNotEmpty
-          ? values
-              .map((v) => v.toString().replaceAll('00:00:00.000', ''))
-              .join(', ')
-          : 'null';
-    } else if (datePickerType == CalendarDatePicker2Type.range) {
-      if (values.isNotEmpty) {
-        final startDate = values[0].toString().replaceAll('00:00:00.000', '');
-        valueText = startDate;
-      } else {
-        return 'null';
-      }
-    }
-    return valueText;
-  }
-
-  String _getValueText2(
-    CalendarDatePicker2Type datePickerType,
-    List<DateTime?> values,
-  ) {
-    values =
-        values.map((e) => e != null ? DateUtils.dateOnly(e) : null).toList();
-    var valueText = (values.isNotEmpty ? values[0] : null)
-        .toString()
-        .replaceAll('00:00:00.000', '');
-
-    if (datePickerType == CalendarDatePicker2Type.multi) {
-      valueText = values.isNotEmpty
-          ? values
-              .map((v) => v.toString().replaceAll('00:00:00.000', ''))
-              .join(', ')
-          : 'null';
-    } else if (datePickerType == CalendarDatePicker2Type.range) {
-      if (values.isNotEmpty) {
-        final endDate = values.length > 1
-            ? values[1].toString().replaceAll('00:00:00.000', '')
-            : 'null';
-        valueText = endDate;
-      } else {
-        return 'null';
-      }
-    }
-    return valueText;
-  }
-
-  Future<String> _getExcel(inicio, fin) async {
-    var url =
-        'https://dds.tecnoregistro.pro/registroAsistencia/public/asistencia/getExcel/' +
-            // 'https://192.168.1.77/registroAsistencia/public/asistencia/getExcel/' +
-            inicio +
-            "/" +
-            fin;
-    // ignore: deprecated_member_use
-    if (await canLaunch(url)) {
-      // ignore: deprecated_member_use
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-    return '';
-  }*/
+  // PageRouteBuilder _buildPageRoute(Widget page) {
+  //   return PageRouteBuilder(
+  //     barrierColor: Colors.black.withOpacity(0.6),
+  //     opaque: false,
+  //     pageBuilder: (_, __, ___) => page,
+  //     transitionDuration: const Duration(milliseconds: 200),
+  //     transitionsBuilder: (_, animation, __, child) {
+  //       return BackdropFilter(
+  //         filter: ImageFilter.blur(
+  //           sigmaX: 5 * animation.value,
+  //           sigmaY: 5 * animation.value,
+  //         ),
+  //         child: FadeTransition(
+  //           opacity: animation,
+  //           child: child,
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }

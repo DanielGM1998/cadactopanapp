@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+class ImagePreview extends StatelessWidget {
+  final String imageUrl;
+
+  const ImagePreview({Key? key, required this.imageUrl}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          "",
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: Center(
+        child: PhotoView(
+          imageProvider: CachedNetworkImageProvider(imageUrl),
+          backgroundDecoration: const BoxDecoration(
+            color: Colors.black,
+          ),
+          minScale: PhotoViewComputedScale.contained,
+          maxScale: PhotoViewComputedScale.covered * 2.0,
+          initialScale: PhotoViewComputedScale.contained,
+          enableRotation: false,
+          heroAttributes: PhotoViewHeroAttributes(tag: imageUrl),
+        ),
+      ),
+    );
+  }
+}

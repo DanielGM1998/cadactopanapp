@@ -46,7 +46,7 @@ class _PresionScreenState extends State<PresionScreen> {
   bool _preError2 = false;
   final GlobalKey<State> _keyModal = GlobalKey<State>();
   final GlobalKey<State> _keyLoader = GlobalKey<State>();
-  List arrDia = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+  List arrDia = ['', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab','dom'];
   List arrMes = [
     '',
     'enero',

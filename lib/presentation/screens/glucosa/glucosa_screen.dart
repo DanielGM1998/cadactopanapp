@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:awesome_top_snackbar/awesome_top_snackbar.dart';
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
@@ -46,7 +47,7 @@ class _GlucosaScreenState extends State<GlucosaScreen> {
   bool _gluError = false;
   final GlobalKey<State> _keyModal = GlobalKey<State>();
   final GlobalKey<State> _keyLoader = GlobalKey<State>();
-  List arrDia = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+  List arrDia = ['', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab','dom'];
   List arrMes = [
     '',
     'enero',
@@ -629,7 +630,7 @@ class _GlucosaScreenState extends State<GlucosaScreen> {
     return fechaBD;
   }
 
-  String _fechaToStr(DateTime date) {
+  String _fechaToStr(DateTime date) {    
     String fecha = arrDia[date.weekday] +
         ', ' +
         date.day.toString() +

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:cadactopanapp/presentation/screens/chat/chat_users_screen.dart';
 import 'package:cloudflare/cloudflare.dart';
